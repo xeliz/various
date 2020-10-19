@@ -1,0 +1,16 @@
+#!python
+
+import argparse
+import flask
+
+app = flask.Flask(__name__)
+@app.route("/")
+def index():
+    return flask.Response("it works", mimetype="text/plain")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Basic Flask app")
+    parser.add_argument("-p", action="store", dest="port", default=8080, type=int)
+    args = parser.parse_args()
+    app.run(host="0.0.0.0", port=args.port)
+

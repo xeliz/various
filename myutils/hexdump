@@ -1,0 +1,74 @@
+#!python
+
+# hexdump util
+# Usage: hexdump filename [bytes_in_row]
+
+import sys
+import argparse
+
+def byte_to_char(c):
+    escseq = {
+        "\a": "\\a",
+        "\b": "\\b",
+        "\f": "\\f",
+        "\n": "\\n",
+        "\r": "\\r",
+        "\t": "\\t",
+        "\v": "\\v",
+        "\\": "\\\\",
+        "\'": "\\'",
+        "\"": '\\"',
+        "\?": "\\?",
+    }
+    if c.isprintable():
+        return repr(c)[1:-1]
+    else:
+        return escseq.get(c, ".")
+
+def bs_to_str(bs):
+    r = []
+    for b in bs:
+        try:
+            s = (bytes([b])).decode("utf-8")
+            r.append(byte_to_char(s))
+        except Exception as e:
+            r.append(".")
+    return "".join(r)
+
+def print_hexdump(bs, n_bytes):
+    # position: n bytes raw | n bytes decoded
+    N_BYTES = n_bytes
+    bslen_digits = len(hex(len(bs))) - 2
+    for i in range(0, len(bs), N_BYTES):
+        row = list(map(lambda s: "{0:02x}".format(s), bs[i:i+N_BYTES]))
+        row.extend(["  "] * (N_BYTES - len(row)))
+        print("{}: ".format(hex(i)[2:].zfill(bslen_digits)), end="")
+        print(" ".join(row), end="")
+        print(" |", bs_to_str(bs[i:i+N_BYTES]))
+
+def main(filename, n_bytes):
+    try:
+        with open(filename, "rb") as fin:
+            print_hexdump(fin.read(), n_bytes)
+    except FileNotFoundError as e:
+        print("file not found", file=sys.stderr)
+    except Exception as e:
+        pass
+
+def check_n_gt_0(s):
+    try:
+        n = int(s)
+        if n <= 0:
+            raise ValueError()
+        return n
+    except Exception as e:
+        raise argparse.ArgumentTypeError("must be integer > 0")
+
+if __name__ == "__main__":
+    argparser = argparse.ArgumentParser(description="prints hex dump of given file(s)")
+    argparser.add_argument("file", type=str, help="name of file(s) to process")
+    argparser.add_argument("-n", dest="n", type=check_n_gt_0, help="number of bytes in row printed", default=16)
+    args = argparser.parse_args()
+
+    main(args.file, args.n)
+

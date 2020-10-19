@@ -1,0 +1,25 @@
+#!python
+
+import zlib
+import sys
+import os.path
+
+if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print("Specify imput files")
+        sys.exit(1)
+    filenames = sys.argv[1:]
+    for filename in filenames:
+        if not os.path.isfile(filename):
+            print("Not a file:", filename)
+            sys.exit(1)
+    if len(filenames) == 1:
+        with open(filename, mode="rb") as fin:
+            print(str(zlib.decompress(fin.read()))[2:-1])
+    else:
+        for filename in sys.argv[1:]:
+            with open(filename, mode="rb") as fin:
+                print(filename + ":")
+                print(str(zlib.decompress(fin.read()))[2:-1])
+                print()
+

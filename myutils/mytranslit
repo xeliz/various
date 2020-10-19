@@ -1,0 +1,106 @@
+#!python
+
+import sys
+
+# Транслитерятор кириллицы в латиницу по "моей" системе.
+# Главная цель "моей" системы транслитерации в том, чтобы кириллица
+# и латиница однозначно отображались друг в друга
+# Некоторые буквы, не влезшие в латиницу, записываются ди- и траграфами.
+
+TRANSLIT_RU_LIT = {
+    "а": "a",
+    "б": "b",
+    "в": "v",
+    "г": "g",
+    "д": "d",
+    "е": "ye",
+    "ё": "yo",
+    "ж": "zh",
+    "з": "z",
+    "и": "i",
+    "й": "j",
+    "к": "k",
+    "л": "l",
+    "м": "m",
+    "н": "n",
+    "о": "o",
+    "п": "p",
+    "р": "r",
+    "с": "s",
+    "т": "t",
+    "у": "u",
+    "ф": "f",
+    "х": "x",
+    "ц": "c",
+    "ч": "ch",
+    "ш": "sh",
+    "щ": "shh",
+    "ъ": "w",
+    "ы": "yy",
+    "ь": "q",
+    "э": "e",
+    "ю": "yu",
+    "я": "ya",
+    "А": "A",
+    "Б": "B",
+    "В": "V",
+    "Г": "G",
+    "Д": "D",
+    "Е": "YE",
+    "Ё": "YO",
+    "Ж": "ZH",
+    "З": "Z",
+    "И": "I",
+    "Й": "J",
+    "К": "K",
+    "Л": "L",
+    "М": "M",
+    "Н": "N",
+    "О": "O",
+    "П": "P",
+    "Р": "R",
+    "С": "S",
+    "Т": "T",
+    "У": "U",
+    "Ф": "F",
+    "Х": "X",
+    "Ц": "C",
+    "Ч": "CH",
+    "Ш": "SH",
+    "Щ": "SHH",
+    "Ъ": "W",
+    "Ы": "YY",
+    "Ь": "Q",
+    "Э": "E",
+    "Ю": "YU",
+    "Я": "YA",
+}
+
+def translit_ru(s):
+    res = []
+    for s0 in s:
+        res.append(TRANSLIT_RU_LIT.get(s0, s0))
+    return "".join(res)
+
+def read_lines_from_console():
+    res = []
+    eoi = input("End of input: ")
+    while True:
+        s = input()
+        if s == eoi:
+            break
+        res.append(s)
+    return "\n".join(res)
+
+if __name__ == "__main__":
+    try:
+        if len(sys.argv) == 1:
+            # input frok console
+            print(translit_ru(read_lines_from_console()))
+        else:
+            # input from file
+            with open(sys.argv[1], encoding="utf-8") as fin:
+                print(translit_ru(fin.read()))
+    except Exception as e:
+        print("Error", file=sys.stderr)
+
