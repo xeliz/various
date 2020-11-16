@@ -1,0 +1,54 @@
+#!python
+
+import math
+import struct
+import argparse
+import sys
+import os
+
+from PIL import Image, ImageDraw
+
+# A tool for pack file contents to a square PNG file or for unpacking PNG to original file.
+
+def read_file_data(filename):
+    with open(filename, mode="rb") as fin:
+        return fin.read()
+
+def write_file_data(data, filename):
+    with open(filename, mode="wb") as fout:
+        fout.write(data)
+
+def write_data(data, pngname):
+    data = struct.pack("<i", len(data)) + data
+    wh = math.ceil((len(data)/3)**0.5)
+    data = data + b"\x00" * (wh*wh*3 - len(data))
+    img = Image.frombytes("RGB", (wh, wh), data)
+    img.save(pngname)
+
+def read_data(pngname):
+    img = Image.open(pngname)
+    if img.width != img.height:
+        raise ValueError("Image must be a square")
+    data = img.tobytes()
+    return data[4:4+struct.unpack("<i", data[:4])[0]]
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Data packing/unpacking to/from PNG files.")
+    parser.add_argument("-png", type=str, help="png", required=True)
+    parser.add_argument("-file", type=str, help="file", required=True)
+    parser.add_argument("-action", type=str, choices=["topng", "frompng"], help="action", required=True)
+    parsed = parser.parse_args()
+    if parsed.action == "topng":
+        if not os.path.isfile(parsed.file):
+            sys.stderr.write(f"Cannot open {parsed.file}.")
+            sys.exit(1)
+        write_data(read_file_data(parsed.file), parsed.png)
+    elif parsed.action == "frompng":
+        if not os.path.isfile(parsed.png):
+            sys.stderr.write(f"Cannot open {parsed.png}.")
+            sys.exit(1)
+        write_file_data(read_data(parsed.png), parsed.file)
+
+if __name__ == "__main__":
+    parse_args()
+
