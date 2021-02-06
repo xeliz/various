@@ -116,6 +116,14 @@ case "$1" in
         echo "Removing $2..."
         rm -rf $DIR/apps/$2
     ;;
+    log)
+        refresh
+        if [ ! -e "$DIR/apps/$2" ]; then
+            echo "Not installed"
+            exit 1
+        fi
+        tail -f $DIR/apps/$2/log
+    ;;
     *)
         refresh
         echo 'Specify command'
